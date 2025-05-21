@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "453130459630",
+    "project_id": "seatly-876ab",
+    "storage_bucket": "seatly-876ab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:453130459630:android:f8c59ec53567c0fbf256ff",
+        "android_client_info": {
+          "package_name": "com.example.seatly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDitStBV6aQZ1GsnR8YDCoU2kri1-BVGY4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
