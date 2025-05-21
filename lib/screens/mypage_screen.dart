@@ -187,8 +187,14 @@ class _MenuItem extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        // TODO: 각 메뉴 동작
-        debugPrint('Tapped: ${item.label}');
+        // 각 메뉴 동작 구현
+        if (item.label == '즐겨찾기한 장소') {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const FavoritesScreen()));
+        } else {
+          debugPrint('Tapped: \\${item.label}');
+        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -227,4 +233,16 @@ class _MenuItemData {
     this.isDestructive = false,
     this.isGray = false,
   });
+}
+
+class FavoritesScreen extends StatelessWidget {
+  const FavoritesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('즐겨찾기한 장소')),
+      body: const Center(child: Text('즐겨찾기한 장소 목록')),
+    );
+  }
 }
