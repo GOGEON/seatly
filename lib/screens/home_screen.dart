@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:seatly/screens/splash_screen.dart';
-import '../widgets/navigation_bar.dart'; // 커스텀 네비게이션 바 import
 import 'search_screen.dart';
-import 'signup_screen.dart';
+import 'mypage_screen.dart';
+import '../widgets/navigation_bar.dart';
+import 'restrauntdetail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,18 +14,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
+  final List<Widget> _screens = [
+    _HomeTabContent(), // 홈 탭의 실제 내용
+    SearchScreen(),
+    MyPageScreen(),
+  ];
+
   void _onNavTap(int index) {
-    if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const SplashScreen()),
-      );
-    } else if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const SignupScreen()),
-      );
-    }
     setState(() {
       _selectedIndex = index;
     });
@@ -34,7 +29,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB), // Tailwind bg-gray-50
+      body: _screens[_selectedIndex],
+      bottomNavigationBar: CustomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onNavTap,
+      ),
+    );
+  }
+}
+
+// 기존 홈 탭의 실제 내용(예약, 인기장소 등)을 별도 위젯으로 분리
+class _HomeTabContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
@@ -62,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: TextField(
               decoration: InputDecoration(
                 filled: true,
-                fillColor: const Color(0xFFF3F4F6), // Tailwind gray-100
+                fillColor: const Color(0xFFF3F4F6),
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 hintText: '장소 또는 좌석 검색',
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
@@ -124,15 +133,25 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisSpacing: 12,
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              children: const [
-                _PlaceCard(
-                  title: '라 피아짜',
-                  imageUrl:
-                      'https://readdy.ai/api/search-image?query=modern%20italian%20restaurant%20interior%20with%20elegant%20table%20settings%2C%20warm%20lighting%2C%20wine%20glasses%2C%20rustic%20wooden%20furniture%2C%20romantic%20atmosphere%2C%20high-end%20dining%20experience&width=300&height=200&seq=1&orientation=landscape',
-                  rating: 4.7,
-                  description: '대전 중구 은행동 · 이탈리안 레스토랑',
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RestaurantDetailScreen(),
+                      ),
+                    );
+                  },
+                  child: const _PlaceCard(
+                    title: '라 피아짜',
+                    imageUrl:
+                        'https://readdy.ai/api/search-image?query=modern%20italian%20restaurant%20interior%20with%20elegant%20table%20settings%2C%20warm%20lighting%2C%20wine%20glasses%2C%20rustic%20wooden%20furniture%2C%20romantic%20atmosphere%2C%20high-end%20dining%20experience&width=300&height=200&seq=1&orientation=landscape',
+                    rating: 4.7,
+                    description: '대전 중구 은행동 · 이탈리안 레스토랑',
+                  ),
                 ),
-                _PlaceCard(
+                const _PlaceCard(
                   title: '카페 브런치',
                   imageUrl:
                       'https://readdy.ai/api/search-image?query=trendy%20brunch%20cafe%20interior%20with%20marble%20tables%2C%20lush%20plants%2C%20artisanal%20coffee%20preparation%2C%20pastry%20display%2C%20natural%20lighting%2C%20instagram%20worthy%20setting&width=300&height=200&seq=2&orientation=landscape',
@@ -151,10 +170,6 @@ class _HomeScreenState extends State<HomeScreen> {
             const _HistoryItem(title: "산호여", time: "5월 5일 12:00 - 14:00"),
           ],
         ),
-      ),
-      bottomNavigationBar: CustomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavTap,
       ),
     );
   }
