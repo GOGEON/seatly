@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'seat_screen.dart'; // 좌석배치도 화면 이동을 위해 import 추가
 
 class RestaurantDetailScreen extends StatefulWidget {
-  const RestaurantDetailScreen({Key? key}) : super(key: key);
+  const RestaurantDetailScreen({super.key});
 
   @override
   State<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
@@ -13,14 +14,26 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
   int? selectedTable;
   int selectedTabIndex = 0;
 
-  final List<Map<String, String>> dates = [
-    {'label': '오늘', 'date': '5/15', 'weekday': '목'},
-    {'label': '내일', 'date': '5/16', 'weekday': '금'},
-    {'label': '모레', 'date': '5/17', 'weekday': '토'},
-    {'label': '', 'date': '5/18', 'weekday': '일'},
-    {'label': '', 'date': '5/19', 'weekday': '월'},
-    {'label': '', 'date': '5/20', 'weekday': '화'},
-  ];
+  // 실시간 날짜 생성
+  List<Map<String, String>> get dates {
+    final now = DateTime.now();
+    final weekDays = ['월', '화', '수', '목', '금', '토', '일'];
+    return List.generate(6, (i) {
+      final date = now.add(Duration(days: i));
+      String label = '';
+      if (i == 0)
+        label = '오늘';
+      else if (i == 1)
+        label = '내일';
+      else if (i == 2)
+        label = '모레';
+      return {
+        'label': label,
+        'date': '${date.month}/${date.day}',
+        'weekday': weekDays[date.weekday - 1],
+      };
+    });
+  }
 
   final List<Map<String, String>> timeSlots = [
     {'time': '11:30', 'remaining': '8석 남음'},
@@ -349,8 +362,26 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                             final selected = i == selectedTabIndex;
                             return Expanded(
                               child: GestureDetector(
-                                onTap:
-                                    () => setState(() => selectedTabIndex = i),
+                                onTap: () {
+                                  if (i == 0) {
+                                    setState(() => selectedTabIndex = 0);
+                                  } else {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) => SeatScreen(initialTab: i),
+                                        settings: RouteSettings(
+                                          arguments: {
+                                            'selectedDate':
+                                                dates[selectedDateIndex]['date'],
+                                            'selectedTime':
+                                                timeSlots[selectedTimeIndex]['time'],
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     vertical: 12,
@@ -385,9 +416,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                           }),
                         ),
                         if (selectedTabIndex == 0) ..._buildMenuTab(),
-                        if (selectedTabIndex == 1) ..._buildSeatingTab(),
-                        if (selectedTabIndex == 2) ..._buildInfoTab(),
-                        if (selectedTabIndex == 3) ..._buildReviewsTab(),
                       ],
                     ),
                   ),
@@ -410,9 +438,15 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                  ), // SeatScreen과 동일하게
                 ),
                 onPressed: () {},
-                child: Text('$selectedDate $selectedTime 예약하기'),
+                child: Text(
+                  '$selectedDate $selectedTime 예약하기',
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
               ),
             ),
           ),
@@ -431,6 +465,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
     ),
   );
 
+  // 메뉴탭만 내부에서 렌더링, 나머지 탭은 SeatScreen으로 이동
   List<Widget> _buildMenuTab() {
     return [
       Padding(
@@ -470,7 +505,13 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
             const SizedBox(height: 12),
             Center(
               child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const SeatScreen(initialTab: 0),
+                    ),
+                  );
+                },
                 child: const Text(
                   '전체 메뉴 보기',
                   style: TextStyle(color: Color(0xFFCFA857)),
@@ -536,155 +577,5 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
         ],
       ),
     );
-  }
-
-  List<Widget> _buildSeatingTab() {
-    // 좌석배치도, 좌석 정보, 구역 설명, 범례, 좌석 선택 버튼
-    return [
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  '좌석배치도',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    '전체 보기',
-                    style: TextStyle(fontSize: 14, color: Color(0xFFCFA857)),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Container(
-              height: 160,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Color(0xFFF3F4F6)),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Image.network(
-                      'https://readdy.ai/api/search-image?query=restaurant%2520floor%2520plan%2520layout%2520diagram%2C%2520top%2520view%2C%2520showing%2520tables%2C%2520chairs%2C%2520bar%2520area%2C%2520entrance%2C%2520kitchen%2C%2520restrooms%2C%2520clean%2520design%2520with%2520labels%2C%2520blueprint%2520style%2C%2520professional%2520restaurant%2520seating%2520chart&width=375&height=250&seq=106&orientation=landscape',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  // 실제 좌석 위젯은 생략, 예시용
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _legendDot(Colors.green, '이용 가능'),
-                const SizedBox(width: 12),
-                _legendDot(Colors.red, '예약됨'),
-                const SizedBox(width: 12),
-                _legendDot(Colors.yellow, '선택됨'),
-              ],
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFCFA857),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: () {},
-                child: const Text('좌석 선택하기'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ];
-  }
-
-  Widget _legendDot(Color color, String label) {
-    return Row(
-      children: [
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 4),
-        Text(label, style: const TextStyle(fontSize: 13)),
-      ],
-    );
-  }
-
-  List<Widget> _buildInfoTab() {
-    return [
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              '영업 시간',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 8),
-            Text('월요일 - 금요일: 11:30 - 22:00'),
-            Text('토요일: 11:30 - 23:00'),
-            Text('일요일: 12:00 - 21:00'),
-            Text(
-              '* 브레이크 타임: 15:00 - 17:00',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            SizedBox(height: 16),
-            Text(
-              '위치 정보',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 8),
-            Text('대전 중구 은행동 123-45'),
-            SizedBox(height: 8),
-            Text(
-              '편의 시설',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 8),
-            Text('무료 와이파이, 주차 가능, 장애인 접근성, 카드 결제'),
-          ],
-        ),
-      ),
-    ];
-  }
-
-  List<Widget> _buildReviewsTab() {
-    return [
-      Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              '리뷰 156개',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            SizedBox(height: 8),
-            Text('4.7점 (156명)'),
-            SizedBox(height: 8),
-            Text(
-              '정통 이탈리안 요리를 즐길 수 있는 곳입니다. 마르게리타 피자가 정말 맛있었어요! 도우가 쫄깃하고 토핑이 신선해요. 분위기도 로맨틱해서 데이트 코스로 추천합니다.',
-            ),
-          ],
-        ),
-      ),
-    ];
   }
 }

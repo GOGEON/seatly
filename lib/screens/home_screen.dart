@@ -5,14 +5,21 @@ import '../widgets/navigation_bar.dart';
 import 'restrauntdetail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final int initialIndex;
+  const HomeScreen({super.key, this.initialIndex = 0});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedIndex = 0;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
 
   final List<Widget> _screens = [
     _HomeTabContent(), // 홈 탭의 실제 내용
@@ -21,9 +28,14 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   void _onNavTap(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    if (index == _selectedIndex) return;
+    if (index == 0) {
+      Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+    } else if (index == 1) {
+      Navigator.pushNamedAndRemoveUntil(context, '/search', (route) => false);
+    } else if (index == 2) {
+      Navigator.pushNamedAndRemoveUntil(context, '/mypage', (route) => false);
+    }
   }
 
   @override
@@ -43,9 +55,12 @@ class _HomeTabContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF3F4F6), // 바탕색과 동일하게 맞춤
+        surfaceTintColor: const Color(0xFFF3F4F6), // Material3에서 tint 제거
+        foregroundColor: Colors.black87, // 아이콘/텍스트 컬러 명시
+        shadowColor: Colors.transparent, // 그림자 제거로 깔끔하게
         elevation: 1,
         title: const Text(
           'seatly',
@@ -71,7 +86,7 @@ class _HomeTabContent extends StatelessWidget {
             child: TextField(
               decoration: InputDecoration(
                 filled: true,
-                fillColor: const Color(0xFFF3F4F6),
+                fillColor: const Color(0xFFE5E7EB), // hover 상태의 연한 회색으로 변경
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 hintText: '장소 또는 좌석 검색',
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),

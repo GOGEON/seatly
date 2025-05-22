@@ -46,15 +46,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB), // 배경색 통일
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFF9FAFB),
-        elevation: 1,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('검색', style: TextStyle(color: Colors.black)),
-      ),
       body: Column(
         children: [
           // 검색창
@@ -126,11 +117,25 @@ class _SearchScreenState extends State<SearchScreen> {
                 recentKeywords
                     .map(
                       (keyword) => Chip(
-                        label: Text(keyword),
+                        label: Text(
+                          keyword,
+                          style: const TextStyle(
+                            color: Colors.black87,
+                          ), // 글자색 명시
+                        ),
                         deleteIcon: const Icon(Icons.close, size: 18),
                         onDeleted:
                             () =>
                                 setState(() => recentKeywords.remove(keyword)),
+                        backgroundColor: const Color(0xFFF3F4F6),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 2,
+                          horizontal: 8,
+                        ), // 패딩 추가
+                        labelPadding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 2,
+                        ),
                       ),
                     )
                     .toList(),
@@ -149,13 +154,24 @@ class _SearchScreenState extends State<SearchScreen> {
                     .entries
                     .map(
                       (entry) => Chip(
-                        label: Text('#${entry.key + 1} ${entry.value}'),
+                        label: Text(
+                          '#${entry.key + 1} ${entry.value}',
+                          style: TextStyle(
+                            color:
+                                entry.key < 3 ? primaryColor : Colors.black87,
+                          ),
+                        ),
                         backgroundColor:
                             entry.key < 3
                                 ? primaryColor.withOpacity(0.1)
                                 : const Color(0xFFF3F4F6),
-                        labelStyle: TextStyle(
-                          color: entry.key < 3 ? primaryColor : Colors.black87,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 2,
+                          horizontal: 8,
+                        ), // 패딩 추가
+                        labelPadding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 2,
                         ),
                       ),
                     )

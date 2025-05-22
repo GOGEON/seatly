@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:seatly/screens/home_screen.dart';
-import 'screens/splash_screen.dart';
+import 'package:seatly/screens/recent_screen.dart';
+import 'package:seatly/screens/favorites_screen.dart';
+import 'package:seatly/screens/review_screen.dart';
+import 'package:seatly/screens/seat_screen.dart';
 
 void main() {
   runApp(const SeatlyApp());
@@ -19,8 +22,17 @@ class SeatlyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       //home: const SplashScreen(),
+      //home: const SeatScreen(initialTab: 1),
       home: const HomeScreen(),
       debugShowCheckedModeBanner: false,
+      routes: {
+        '/home': (context) => const HomeScreen(initialIndex: 0),
+        '/search': (context) => const HomeScreen(initialIndex: 1),
+        '/mypage': (context) => const HomeScreen(initialIndex: 2),
+        '/recent': (context) => const RecentScreen(),
+        '/favorites': (context) => const FavoritesScreen(),
+        '/review': (context) => const ReviewScreen(),
+      },
     );
   }
 }

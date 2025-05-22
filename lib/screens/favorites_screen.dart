@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'mypage_screen.dart';
+import '../widgets/navigation_bar.dart';
 
 class FavoritesScreen extends StatefulWidget {
-  const FavoritesScreen({Key? key}) : super(key: key);
+  const FavoritesScreen({super.key});
 
   @override
   State<FavoritesScreen> createState() => _FavoritesScreenState();
@@ -100,141 +100,119 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         ),
         centerTitle: true,
       ),
-      body: _places.isEmpty
-          ? const Center(
-              child: Text(
-                '즐겨찾기한 장소가 없습니다.',
-                style: TextStyle(color: Colors.grey, fontSize: 16),
-              ),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              itemCount: _places.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, idx) {
-                final place = _places[idx];
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOut,
-                  height: _pendingRemoveIndex == idx ? 0 : null,
-                  child: Opacity(
-                    opacity: _pendingRemoveIndex == idx ? 0 : 1,
-                    child: GestureDetector(
-                      onTap: () {
-                        // TODO: 상세 페이지 이동 구현
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Image.network(
-                                  place.imageUrl,
-                                  width: 80,
-                                  height: 80,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      place.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      place.category,
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 18,
-                                        ),
-                                        const SizedBox(width: 2),
-                                        Text(
-                                          '${place.rating.toStringAsFixed(1)} (${place.reviews})',
-                                          style: const TextStyle(fontSize: 13),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.favorite,
-                                  color: primaryColor,
-                                  size: 28,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _pendingRemoveIndex = idx;
-                                  });
-                                  Future.delayed(
-                                    const Duration(milliseconds: 300),
-                                    () {
-                                      setState(() {
-                                        _places.removeAt(idx);
-                                        _pendingRemoveIndex = null;
-                                      });
-                                    },
-                                  );
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: true,
-                                    builder: (context) => _UnfavoriteDialog(
-                                      onConfirm: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      onCancel: () {
-                                        setState(() {
-                                          _pendingRemoveIndex = null;
-                                        });
-                                        Navigator.of(context).pop();
-                                      },
-                                    ),
-                                  );
-                                },
+      body:
+          _places.isEmpty
+              ? const Center(
+                child: Text(
+                  '즐겨찾기한 장소가 없습니다.',
+                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                ),
+              )
+              : ListView.separated(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+                itemCount: _places.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, idx) {
+                  final place = _places[idx];
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                    height: _pendingRemoveIndex == idx ? 0 : null,
+                    child: Opacity(
+                      opacity: _pendingRemoveIndex == idx ? 0 : 1,
+                      child: GestureDetector(
+                        onTap: () {
+                          // TODO: 상세 페이지 이동 구현
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 4,
+                                offset: const Offset(0, 2),
                               ),
                             ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Row(
+                              children: [
+                                // 이미지 정상 출력으로 복원
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    place.imageUrl,
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        place.name,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        place.category,
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.star,
+                                            color: Colors.amber,
+                                            size: 18,
+                                          ),
+                                          const SizedBox(width: 2),
+                                          Text(
+                                            '${place.rating.toStringAsFixed(1)} (${place.reviews})',
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.favorite,
+                                    color: primaryColor,
+                                    size: 28,
+                                  ),
+                                  onPressed: () {
+                                    // 삭제/해제 동작 없이 아무 일도 하지 않음 (항상 리스트가 보이게)
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
-            ),
-      bottomNavigationBar: _BottomNavBar(
+                  );
+                },
+              ),
+      bottomNavigationBar: CustomNavigationBar(
         currentIndex: 2,
         onTap: (idx) {
-          if (idx == 2) return;
           if (idx == 0) {
             Navigator.of(
               context,
@@ -244,10 +222,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               context,
             ).pushNamedAndRemoveUntil('/search', (route) => false);
           } else if (idx == 2) {
-            // 내 정보
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (_) => const MyPageScreen()),
-            );
+            Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil('/mypage', (route) => false);
           }
         },
       ),
@@ -268,149 +245,4 @@ class _Place {
     required this.rating,
     required this.reviews,
   });
-}
-
-class _UnfavoriteDialog extends StatelessWidget {
-  final VoidCallback onConfirm;
-  final VoidCallback onCancel;
-  const _UnfavoriteDialog({required this.onConfirm, required this.onCancel});
-
-  @override
-  Widget build(BuildContext context) {
-    const primaryColor = Color(0xFFCFA857);
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              '즐겨찾기 해제',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              '이 장소를 즐겨찾기에서 삭제하시겠습니까?',
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: onCancel,
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.black,
-                    backgroundColor: const Color(0xFFF5F5F5),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text('취소'),
-                ),
-                const SizedBox(width: 8),
-                TextButton(
-                  onPressed: onConfirm,
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text('확인'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BottomNavBar extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTap;
-  const _BottomNavBar({required this.currentIndex, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    const primaryColor = Color(0xFFCFA857);
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFEEEEEE))),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _NavBarItem(
-            icon: Icons.home_outlined,
-            label: '홈',
-            selected: currentIndex == 0,
-            onTap: () => onTap(0),
-          ),
-          _NavBarItem(
-            icon: Icons.search,
-            label: '검색',
-            selected: currentIndex == 1,
-            onTap: () => onTap(1),
-          ),
-          _NavBarItem(
-            icon: Icons.person,
-            label: '내 정보',
-            selected: currentIndex == 2,
-            selectedColor: primaryColor,
-            onTap: () => onTap(2),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavBarItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final Color? selectedColor;
-  final VoidCallback onTap;
-  const _NavBarItem({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    this.selectedColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = selected ? (selectedColor ?? Colors.black) : Colors.grey;
-    final fontWeight = selected ? FontWeight.w600 : FontWeight.normal;
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: color,
-                fontWeight: fontWeight,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

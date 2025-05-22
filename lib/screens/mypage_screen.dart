@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// 불필요한 직접 import 제거 (pushNamed로 이동 통일)
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
@@ -46,7 +47,7 @@ class MyPageScreen extends StatelessWidget {
                     CircleAvatar(
                       radius: 40,
                       backgroundImage: NetworkImage(
-                        'https://readdy.ai/api/search-image?query=professional%20portrait%20photo%20of%20a%20Korean%20woman...&width=200&height=200&seq=1',
+                        "https://readdy.ai/api/search-image?query=professional%20portrait%20photo%20of%20a%20Korean%20woman%20in%20her%2030s%2C%20natural%20makeup%2C%20friendly%20smile%2C%20soft%20lighting%2C%20high%20quality%2C%20studio%20photo&width=200&height=200&seq=1&orientation=squarish",
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -189,9 +190,11 @@ class _MenuItem extends StatelessWidget {
       onTap: () {
         // 각 메뉴 동작 구현
         if (item.label == '즐겨찾기한 장소') {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const FavoritesScreen()));
+          Navigator.of(context).pushNamed('/favorites');
+        } else if (item.label == '최근 방문 장소') {
+          Navigator.of(context).pushNamed('/recent');
+        } else if (item.label == '내가 쓴 리뷰') {
+          Navigator.of(context).pushNamed('/review');
         } else {
           debugPrint('Tapped: \\${item.label}');
         }
@@ -233,16 +236,4 @@ class _MenuItemData {
     this.isDestructive = false,
     this.isGray = false,
   });
-}
-
-class FavoritesScreen extends StatelessWidget {
-  const FavoritesScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('즐겨찾기한 장소')),
-      body: const Center(child: Text('즐겨찾기한 장소 목록')),
-    );
-  }
 }
