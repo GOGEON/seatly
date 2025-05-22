@@ -354,6 +354,49 @@ class _SeatScreenState extends State<SeatScreen> {
 
   // 좌석 선택 상태 변수 추가
   List<bool>? _selectedSeats;
+  // 선택된 테이블에 따른 이미지 리스트
+  List<String> _selectedTableImages = [];
+
+  // 테이블별 좌석 인덱스 매핑
+  final Map<int, List<int>> tableSeatIndices = {
+    1: [0, 1, 2, 3],
+    2: [4, 5, 6, 7],
+    3: [8, 9, 10, 11],
+    4: [12, 13, 14, 15],
+    5: [16, 17, 18, 19],
+    6: [24, 25, 26, 27],
+    7: [28, 29, 30, 31],
+    8: [32, 33, 34, 35],
+  };
+
+  // 좌석 인덱스 → 테이블 번호
+  int? _seatToTable(int seatIdx) {
+    for (final entry in tableSeatIndices.entries) {
+      if (entry.value.contains(seatIdx)) return entry.key;
+    }
+    return null;
+  }
+
+  void _updateSelectedTableImages() {
+    final Set<int> selectedTables = {};
+    for (int i = 0; i < _selectedSeats!.length; i++) {
+      if (_selectedSeats![i]) {
+        final t = _seatToTable(i);
+        if (t != null) selectedTables.add(t);
+      }
+    }
+    final List<String> images = [];
+    if (selectedTables.contains(1) || selectedTables.contains(2)) {
+      images.add('assets/terraces.jpg');
+    }
+    if (selectedTables.contains(3) || selectedTables.contains(6)) {
+      images.add('assets/bar.jpg');
+    }
+    if (selectedTables.contains(8)) {
+      images.add('assets/kitchen.jpg');
+    }
+    _selectedTableImages = images;
+  }
 
   @override
   void initState() {
@@ -496,6 +539,7 @@ class _SeatScreenState extends State<SeatScreen> {
         _selectedSeats!.length != seatPositions.length) {
       _selectedSeats = List.generate(seatPositions.length, (i) => false);
     }
+    _updateSelectedTableImages();
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -565,6 +609,7 @@ class _SeatScreenState extends State<SeatScreen> {
                                 onTap: () {
                                   setState(() {
                                     _selectedSeats![i] = !_selectedSeats![i];
+                                    _updateSelectedTableImages();
                                   });
                                 },
                                 child: AnimatedContainer(
@@ -607,19 +652,27 @@ class _SeatScreenState extends State<SeatScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                if (_selectedTableImages.isNotEmpty)
+                  SizedBox(
+                    height: 90,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _selectedTableImages.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      itemBuilder: (context, idx) {
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.asset(
+                            _selectedTableImages[idx],
+                            width: 140,
+                            height: 90,
+                            fit: BoxFit.cover,
+                          ),
+                        );
+                      },
                     ),
-                    onPressed: () {},
-                    child: const Text('좌석 선택하기'),
                   ),
-                ),
+                if (_selectedTableImages.isNotEmpty) const SizedBox(height: 16),
               ],
             ),
           ),
