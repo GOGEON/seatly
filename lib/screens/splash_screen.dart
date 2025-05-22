@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'signup_screen.dart'; // 추가
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -30,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
-  void _login() {
+  Future<void> _login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
     if (email.isEmpty || password.isEmpty) {
@@ -39,6 +41,26 @@ class _SplashScreenState extends State<SplashScreen> {
     }
     // TODO: 로그인 로직 구현
     print('로그인 시도: $email, 사용자 유형: $userType');
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:8080/api/members/login'), // 또는 10.0.2.2
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // ✅ 로그인 성공 → 홈 화면으로 이동
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        _showErrorDialog('로그인 실패: ${response.body}');
+      }
+    } catch (e) {
+      _showErrorDialog('서버 통신 오류: $e');
+    }
   }
 
   void _googleLogin() {

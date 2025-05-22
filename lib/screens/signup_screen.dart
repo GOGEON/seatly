@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -105,7 +107,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     final email = emailController.text.trim();
     final password = passwordController.text;
     final confirm = confirmController.text;
@@ -127,7 +129,22 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
     // TODO: 실제 회원가입 처리(Firebase 등)
-    _showSuccessDialog();
+    try {
+      final url = Uri.parse('http://localhost:8080/api/members/signup');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+
+      if (response.statusCode == 200) {
+        _showSuccessDialog(); // 회원가입 성공 다이얼로그
+      } else {
+        _showErrorDialog('회원가입 실패: ${response.body}');
+      }
+    } catch (e) {
+      _showErrorDialog('서버 통신 오류: $e');
+    }
   }
 
   @override
