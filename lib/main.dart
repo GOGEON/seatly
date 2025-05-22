@@ -4,6 +4,7 @@ import 'package:seatly/screens/recent_screen.dart';
 import 'package:seatly/screens/favorites_screen.dart';
 import 'package:seatly/screens/review_screen.dart';
 import 'package:seatly/screens/seat_screen.dart';
+import 'package:seatly/screens/splash_screen.dart';
 
 void main() {
   runApp(const SeatlyApp());
@@ -21,9 +22,9 @@ class SeatlyApp extends StatelessWidget {
         fontFamily: 'Pretendard',
         useMaterial3: true,
       ),
-      //home: const SplashScreen(),
-      //home: const SeatScreen(initialTab: 1),
-      home: const HomeScreen(),
+      home: const SplashScreen(),
+/*      home: const SeatScreen(initialTab: 1),
+      home: const HomeScreen(),*/
       debugShowCheckedModeBanner: false,
       routes: {
         '/home': (context) => const HomeScreen(initialIndex: 0),
