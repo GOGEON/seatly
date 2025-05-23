@@ -4,6 +4,7 @@ import 'package:seatly/screens/recent_screen.dart';
 import 'package:seatly/screens/favorites_screen.dart';
 import 'package:seatly/screens/review_screen.dart';
 import 'package:seatly/screens/seat_screen.dart';
+import 'package:seatly/screens/signup_screen.dart';
 import 'package:seatly/screens/splash_screen.dart';
 
 void main() {
@@ -27,6 +28,7 @@ class SeatlyApp extends StatelessWidget {
       home: const HomeScreen(),*/
       debugShowCheckedModeBanner: false,
       routes: {
+        '/signup': (context) => const SignupScreen(),
         '/home': (context) => const HomeScreen(initialIndex: 0),
         '/search': (context) => const HomeScreen(initialIndex: 1),
         '/mypage': (context) => const HomeScreen(initialIndex: 2),
