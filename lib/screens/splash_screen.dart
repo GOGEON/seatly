@@ -46,10 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
       final response = await http.post(
         Uri.parse('http://localhost:8080/api/members/login'), // 또는 10.0.2.2
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
+        body: jsonEncode({'email': email, 'password': password}),
       );
 
       if (response.statusCode == 200) {
@@ -151,7 +148,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       SizedBox(
                         width: 20,
                         height: 20,
-                        child: Image.network(
+                        child: Image.asset(
                           'assets/google_logo.png',
                           fit: BoxFit.contain,
                         ),
