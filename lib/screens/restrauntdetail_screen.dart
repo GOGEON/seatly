@@ -297,7 +297,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                         const SizedBox(height: 8),
                         GridView.count(
                           crossAxisCount: 3,
-                          childAspectRatio: 3 / 2,
+                          childAspectRatio: 2.2 / 1, // 적당히 얇게 조정
                           mainAxisSpacing: 8,
                           crossAxisSpacing: 8,
                           shrinkWrap: true,
@@ -310,7 +310,10 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                   () =>
                                       setState(() => selectedTimeIndex = index),
                               child: Container(
-                                padding: const EdgeInsets.all(8),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4,
+                                  horizontal: 8,
+                                ),
                                 decoration: BoxDecoration(
                                   color:
                                       selected
@@ -332,7 +335,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                                 : Colors.black,
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
+                                    const SizedBox(height: 2),
                                     Text(
                                       slot['remaining']!,
                                       style: TextStyle(

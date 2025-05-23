@@ -183,6 +183,61 @@ class _HomeTabContent extends StatelessWidget {
             const _HistoryItem(title: "르브와 레스토랑", time: "5월 10일 13:00 - 15:00"),
             const _HistoryItem(title: "베케 과자점", time: "5월 8일 10:00 - 12:00"),
             const _HistoryItem(title: "산호여", time: "5월 5일 12:00 - 14:00"),
+
+            const SizedBox(height: 24),
+
+            // 추천 장소
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '추천 장소',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                GestureDetector(
+                  onTap: () {},
+                  child: const Text(
+                    "더보기",
+                    style: TextStyle(color: Color(0xFFCFA857), fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 180,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: const [
+                    _RecommendPlaceCard(
+                      title: '비스트로 파리',
+                      imageUrl:
+                          'https://readdy.ai/api/search-image?query=french%20bistro%20interior%20with%20vintage%20decor%2C%20classic%20table%20settings%2C%20wine%20bottles%20display%2C%20romantic%20lighting%2C%20parisian%20atmosphere%2C%20elegant%20dining%20space&width=300&height=200&seq=5&orientation=landscape',
+                      description: '파리지앵의 감성을 담은 프렌치 다이닝',
+                      rating: 4.7,
+                      ratingCount: 98,
+                    ),
+                    _RecommendPlaceCard(
+                      title: '디저트 랩',
+                      imageUrl:
+                          'https://readdy.ai/api/search-image?query=dessert%20cafe%20interior%20with%20pastry%20display%2C%20elegant%20cake%20presentation%2C%20marble%20counters%2C%20pastel%20colors%2C%20modern%20patisserie%20design%2C%20instagram%20worthy%20setting&width=300&height=200&seq=6&orientation=landscape',
+                      description: '트렌디한 디저트와 커피를 즐기는 공간',
+                      rating: 4.8,
+                      ratingCount: 86,
+                    ),
+                    _RecommendPlaceCard(
+                      title: '스시 오마카세',
+                      imageUrl:
+                          'https://readdy.ai/api/search-image?query=japanese%20fusion%20restaurant%20interior%2C%20minimalist%20design%2C%20sushi%20counter%2C%20zen%20atmosphere%2C%20wooden%20elements%2C%20soft%20ambient%20lighting%2C%20contemporary%20asian%20dining%20space&width=300&height=200&seq=7&orientation=landscape',
+                      description: '최고급 오마카세를 즐기는 프라이빗 공간',
+                      rating: 4.9,
+                      ratingCount: 112,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -376,6 +431,95 @@ class _HistoryItem extends StatelessWidget {
           const Text(
             '완료',
             style: TextStyle(fontSize: 11, color: Colors.black87),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RecommendPlaceCard extends StatelessWidget {
+  final String title, imageUrl, description;
+  final double rating;
+  final int ratingCount;
+
+  const _RecommendPlaceCard({
+    required this.title,
+    required this.imageUrl,
+    required this.description,
+    required this.rating,
+    required this.ratingCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 180,
+      height: 160,
+      margin: const EdgeInsets.only(right: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            child: Image.network(
+              imageUrl,
+              height: 70,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  description,
+                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Row(
+                      children: List.generate(
+                        4,
+                        (i) => const Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                          size: 12,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.star_half, color: Colors.amber, size: 12),
+                    Text(' $rating', style: const TextStyle(fontSize: 11)),
+                    Text(
+                      ' ($ratingCount)',
+                      style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
