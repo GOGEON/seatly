@@ -24,8 +24,8 @@ class SeatlyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const SplashScreen(),
-/*      home: const SeatScreen(initialTab: 1),
-      home: const HomeScreen(),*/
+      //home: const SeatScreen(initialTab: 1),
+      //home: const HomeScreen(),
       debugShowCheckedModeBanner: false,
       routes: {
         '/signup': (context) => const SignupScreen(),

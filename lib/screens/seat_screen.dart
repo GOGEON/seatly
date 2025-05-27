@@ -983,10 +983,18 @@ class _SeatScreenState extends State<SeatScreen> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final String? selectedDate = args != null ? args['selectedDate'] : null;
     final String? selectedTime = args != null ? args['selectedTime'] : null;
-    final buttonText =
-        (selectedDate != null && selectedTime != null)
-            ? '$selectedDate $selectedTime 예약하기'
-            : '예약하기';
+    final int selectedCount = _selectedSeats?.where((e) => e).length ?? 0;
+    String buttonText;
+    if (selectedDate != null && selectedTime != null) {
+      buttonText = '$selectedDate $selectedTime';
+      if (selectedCount > 0) {
+        buttonText += '  $selectedCount명 예약하기';
+      } else {
+        buttonText += ' 예약하기';
+      }
+    } else {
+      buttonText = selectedCount > 0 ? '$selectedCount명 예약하기' : '예약하기';
+    }
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.all(16),
