@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -128,22 +127,24 @@ class _SignupScreenState extends State<SignupScreen> {
       _showErrorDialog('비밀번호가 일치하지 않습니다.');
       return;
     }
-    // TODO: 실제 회원가입 처리(Firebase 등)
     try {
-      final url = Uri.parse('http://localhost:8080/api/members/signup');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-
-      if (response.statusCode == 200) {
-        _showSuccessDialog(); // 회원가입 성공 다이얼로그
-      } else {
-        _showErrorDialog('회원가입 실패: ${response.body}');
+      _showSuccessDialog();
+    } on FirebaseAuthException catch (e) {
+      String msg = '회원가입 실패';
+      if (e.code == 'email-already-in-use') {
+        msg = '이미 사용 중인 이메일입니다.';
+      } else if (e.code == 'invalid-email') {
+        msg = '유효하지 않은 이메일 형식입니다.';
+      } else if (e.code == 'weak-password') {
+        msg = '비밀번호가 너무 약합니다.';
       }
+      _showErrorDialog(msg);
     } catch (e) {
-      _showErrorDialog('서버 통신 오류: $e');
+      _showErrorDialog('알 수 없는 오류: $e');
     }
   }
 

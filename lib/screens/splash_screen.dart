@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'signup_screen.dart'; // 추가
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -39,24 +38,24 @@ class _SplashScreenState extends State<SplashScreen> {
       _showErrorDialog('이메일과 비밀번호를 모두 입력해주세요.');
       return;
     }
-    // TODO: 로그인 로직 구현
-    print('로그인 시도: $email, 사용자 유형: $userType');
-
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:8080/api/members/login'), // 또는 10.0.2.2
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
       );
-
-      if (response.statusCode == 200) {
-        // ✅ 로그인 성공 → 홈 화면으로 이동
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        _showErrorDialog('로그인 실패: ${response.body}');
+      Navigator.pushReplacementNamed(context, '/home');
+    } on FirebaseAuthException catch (e) {
+      String msg = '로그인 실패';
+      if (e.code == 'user-not-found') {
+        msg = '존재하지 않는 계정입니다.';
+      } else if (e.code == 'wrong-password') {
+        msg = '비밀번호가 일치하지 않습니다.';
+      } else if (e.code == 'invalid-email') {
+        msg = '유효하지 않은 이메일 형식입니다.';
       }
+      _showErrorDialog(msg);
     } catch (e) {
-      _showErrorDialog('서버 통신 오류: $e');
+      _showErrorDialog('알 수 없는 오류: $e');
     }
   }
 
