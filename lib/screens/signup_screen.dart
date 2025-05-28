@@ -142,6 +142,10 @@ class _SignupScreenState extends State<SignupScreen> {
       } else if (e.code == 'weak-password') {
         msg = '비밀번호가 너무 약합니다.';
       }
+      if (e.message != null && e.message!.isNotEmpty) {
+        msg += '\n(${e.message})';
+      }
+      msg += '\n[오류코드: ${e.code}]';
       _showErrorDialog(msg);
     } catch (e) {
       _showErrorDialog('알 수 없는 오류: $e');

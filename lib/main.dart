@@ -31,8 +31,8 @@ class SeatlyApp extends StatelessWidget {
         fontFamily: 'Pretendard',
         useMaterial3: true,
       ),
-      //home: const SplashScreen(),
-      home: const HomeScreen(),
+      home: const SplashScreen(),
+      //home: const HomeScreen(),
       debugShowCheckedModeBanner: false,
       routes: {
         '/signup': (context) => const SignupScreen(),
