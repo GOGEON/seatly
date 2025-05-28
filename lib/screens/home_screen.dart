@@ -3,6 +3,8 @@ import 'search_screen.dart';
 import 'mypage_screen.dart';
 import '../widgets/navigation_bar.dart';
 import 'restrauntdetail_screen.dart';
+import 'seat_screen.dart' show globalReservations;
+import '../main.dart' show routeObserver; // RouteObserver import
 
 class HomeScreen extends StatefulWidget {
   final int initialIndex;
@@ -12,13 +14,31 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with RouteAware {
   late int _selectedIndex;
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // 예약 후 메인으로 돌아왔을 때 즉시 갱신
+    setState(() {});
   }
 
   final List<Widget> _screens = [
@@ -51,17 +71,30 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 // 기존 홈 탭의 실제 내용(예약, 인기장소 등)을 별도 위젯으로 분리
-class _HomeTabContent extends StatelessWidget {
+class _HomeTabContent extends StatefulWidget {
+  @override
+  State<_HomeTabContent> createState() => _HomeTabContentState();
+}
+
+class _HomeTabContentState extends State<_HomeTabContent> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  String _tableLabel(String table) {
+    // 예: '테이블 1,2' → '테이블 1,2'
+    if (table.isEmpty || table == '-') return '테이블 미지정';
+    return table;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF3F4F6), // 바탕색과 동일하게 맞춤
-        surfaceTintColor: const Color(0xFFF3F4F6), // Material3에서 tint 제거
-        foregroundColor: Colors.black87, // 아이콘/텍스트 컬러 명시
-        shadowColor: Colors.transparent, // 그림자 제거로 깔끔하게
-        elevation: 1,
+        backgroundColor: const Color(0xFFF3F4F6),
+        elevation: 0,
         title: const Text(
           'seatly',
           style: TextStyle(
@@ -86,7 +119,7 @@ class _HomeTabContent extends StatelessWidget {
             child: TextField(
               decoration: InputDecoration(
                 filled: true,
-                fillColor: const Color(0xFFE5E7EB), // hover 상태의 연한 회색으로 변경
+                fillColor: const Color(0xFFE5E7EB),
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 hintText: '장소 또는 좌석 검색',
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
@@ -111,27 +144,23 @@ class _HomeTabContent extends StatelessWidget {
               height: 150,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children: const [
+                children: [
+                  ...globalReservations.map(
+                    (r) => _ReservationCard(
+                      title: r.title,
+                      time: r.time + (r.people > 0 ? ' · ${r.people}명' : ''),
+                      status: r.status,
+                      statusColor: r.statusColor,
+                      table: _tableLabel(r.table),
+                    ),
+                  ),
+                  // 기존 더미 예약 카드(필요시 유지)
                   _ReservationCard(
                     title: '오아시스 레스토랑',
-                    time: '오늘 15:00 - 17:00',
+                    time: '오늘 18:00',
                     status: '확정',
                     statusColor: Colors.green,
                     table: '테이블 A-12',
-                  ),
-                  _ReservationCard(
-                    title: '삐아또 레스토랑',
-                    time: '내일 12:00 - 14:00',
-                    status: '예약중',
-                    statusColor: Colors.blue,
-                    table: '테이블 B-03',
-                  ),
-                  _ReservationCard(
-                    title: '모퉁이 카페',
-                    time: '5월 20일 13:00 - 15:00',
-                    status: '대기중',
-                    statusColor: Colors.orange,
-                    table: '창가 좌석 T-05',
                   ),
                 ],
               ),
@@ -180,9 +209,9 @@ class _HomeTabContent extends StatelessWidget {
             // 최근 예약
             _sectionHeader(title: "최근 예약", onTap: () {}),
             const SizedBox(height: 8),
-            const _HistoryItem(title: "르브와 레스토랑", time: "5월 10일 13:00 - 15:00"),
-            const _HistoryItem(title: "베케 과자점", time: "5월 8일 10:00 - 12:00"),
-            const _HistoryItem(title: "산호여", time: "5월 5일 12:00 - 14:00"),
+            const _HistoryItem(title: "르브와 레스토랑", time: "5월 25일 13:00 - 15:00"),
+            const _HistoryItem(title: "베케 과자점", time: "5월 18일 10:00 - 12:00"),
+            const _HistoryItem(title: "산호여", time: "5월 17일 12:00 - 14:00"),
 
             const SizedBox(height: 24),
 

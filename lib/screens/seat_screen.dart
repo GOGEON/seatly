@@ -1,5 +1,26 @@
 import 'package:flutter/material.dart';
 
+// 예약 내역 모델 (전역, 파일 상단에 선언)
+class Reservation {
+  final String title;
+  final String time;
+  final String status;
+  final Color statusColor;
+  final String table;
+  final int people; // 인원수 추가
+  Reservation({
+    required this.title,
+    required this.time,
+    required this.status,
+    required this.statusColor,
+    required this.table,
+    required this.people,
+  });
+}
+
+// 예약 내역 전역 리스트 (임시, 실제 앱에서는 Provider/DB 권장)
+List<Reservation> globalReservations = [];
+
 // 전체 메뉴 탭 위젯 (파일 최상단에 선언)
 class FullMenuTab extends StatefulWidget {
   const FullMenuTab({Key? key}) : super(key: key);
@@ -221,7 +242,7 @@ class _FullMenuTabState extends State<FullMenuTab> {
                       )
                       : ListView(
                         padding: const EdgeInsets.only(top: 8, bottom: 16),
-                        children: [..._buildMenuSections(filtered)],
+                        children: _buildMenuSections(filtered),
                       ),
             ),
           ],
@@ -354,19 +375,21 @@ class _SeatScreenState extends State<SeatScreen> {
 
   // 좌석 선택 상태 변수 추가
   List<bool>? _selectedSeats;
+  // 예약된 좌석 상태 변수 추가
+  List<bool>? _reservedSeats;
   // 선택된 테이블에 따른 이미지 리스트
   List<String> _selectedTableImages = [];
 
   // 테이블별 좌석 인덱스 매핑
   final Map<int, List<int>> tableSeatIndices = {
-    1: [0, 1, 2, 3],
-    2: [4, 5, 6, 7],
-    3: [8, 9, 10, 11],
-    4: [12, 13, 14, 15],
-    5: [16, 17, 18, 19],
-    6: [20, 21, 22, 23],
-    7: [24, 25, 26, 27],
-    8: [28, 29, 30, 31],
+    1: [0, 1, 2, 3], // A-1 테이블
+    2: [4, 5, 6, 7], // A-2 테이블
+    3: [8, 9, 10, 11], // A-3 테이블
+    4: [12, 13, 14, 15], // B-1 테이블
+    5: [16, 17, 18, 19], // B-2 테이블
+    6: [20, 21, 22, 23], // B-3 테이블
+    7: [24, 25, 26, 27], // C-1 테이블
+    8: [28, 29, 30, 31], // C-2 테이블
   };
 
   // 좌석 인덱스 → 테이블 번호
@@ -402,6 +425,8 @@ class _SeatScreenState extends State<SeatScreen> {
   void initState() {
     super.initState();
     selectedTab = widget.initialTab;
+    // 예약된 좌석 초기화
+    _reservedSeats = List.generate(32, (i) => false);
   }
 
   @override
@@ -491,44 +516,44 @@ class _SeatScreenState extends State<SeatScreen> {
   Widget _buildSeatingTab(Color primaryColor) {
     // 좌석 위치 및 상태 관리 (32개 좌표, assets/seatingmap.png에 맞게 예시 배치)
     final List<Offset> seatPositions = [
-      // 1번 테이블 (좌상단)
+      // A-1 테이블 (좌상단)
       const Offset(0.12, -0.04),
       const Offset(0.19, -0.04),
       const Offset(0.12, 0.15),
       const Offset(0.19, 0.15),
-      // 2번 테이블 (1번 테이블 오른쪽)
+      // A-2 테이블 (1번 테이블 오른쪽)
       const Offset(0.35, -0.02),
       const Offset(0.42, -0.02),
       const Offset(0.35, 0.17),
       const Offset(0.42, 0.17),
-      // 3번 테이블 (2번 테이블 오른쪽)
+      // A-3 테이블 (2번 테이블 오른쪽)
       const Offset(0.56, -0.02),
       const Offset(0.63, -0.02),
       const Offset(0.56, 0.17),
       const Offset(0.63, 0.17),
 
-      // 4번 테이블 (1번 테이블 아래)
+      // B-1 테이블 (1번 테이블 아래)
       const Offset(0.12, 0.25),
       const Offset(0.19, 0.25),
       const Offset(0.12, 0.44),
       const Offset(0.19, 0.44),
-      // 5번 테이블 (2번 테이블 아래)
+      // B-2 테이블 (2번 테이블 아래)
       const Offset(0.35, 0.30),
       const Offset(0.42, 0.30),
       const Offset(0.35, 0.47),
       const Offset(0.42, 0.47),
-      // 6번 테이블 (3번 테이블 아래)
+      // B-3 테이블 (3번 테이블 아래)
       const Offset(0.56, 0.30),
       const Offset(0.63, 0.30),
       const Offset(0.56, 0.47),
       const Offset(0.63, 0.47),
 
-      // 7번 테이블 (하단)
+      // C-1 테이블 (하단)
       const Offset(0.34, 0.82),
       const Offset(0.45, 0.82),
       const Offset(0.34, 0.95),
       const Offset(0.45, 0.95),
-      // 8번 테이블 (7번 테이블 오른쪽)
+      // C-2 테이블 (7번 테이블 오른쪽)
       const Offset(0.51, 0.82),
       const Offset(0.62, 0.82),
       const Offset(0.51, 0.95),
@@ -538,6 +563,10 @@ class _SeatScreenState extends State<SeatScreen> {
     if (_selectedSeats == null ||
         _selectedSeats!.length != seatPositions.length) {
       _selectedSeats = List.generate(seatPositions.length, (i) => false);
+    }
+    if (_reservedSeats == null ||
+        _reservedSeats!.length != seatPositions.length) {
+      _reservedSeats = List.generate(seatPositions.length, (i) => false);
     }
     _updateSelectedTableImages();
 
@@ -606,25 +635,29 @@ class _SeatScreenState extends State<SeatScreen> {
                                   shownLeft + seatPositions[i].dx * shownW - 11,
                               top: shownTop + seatPositions[i].dy * shownH - 11,
                               child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _selectedSeats![i] = !_selectedSeats![i];
-                                    _updateSelectedTableImages();
-                                  });
-                                },
+                                onTap:
+                                    _reservedSeats![i]
+                                        ? null
+                                        : () {
+                                          setState(() {
+                                            _selectedSeats![i] =
+                                                !_selectedSeats![i];
+                                            _updateSelectedTableImages();
+                                          });
+                                        },
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 150),
                                   width: 22,
                                   height: 22,
                                   decoration: BoxDecoration(
                                     color:
-                                        _selectedSeats![i]
+                                        _reservedSeats![i]
+                                            ? Colors.red
+                                            : _selectedSeats![i]
                                             ? Colors.yellow[700]
                                             : Colors.green,
                                     border: Border.all(color: Colors.black12),
-                                    borderRadius: BorderRadius.circular(
-                                      6,
-                                    ), // 사각형(둥근 모서리)
+                                    borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: const SizedBox.shrink(),
                                 ),
@@ -660,13 +693,50 @@ class _SeatScreenState extends State<SeatScreen> {
                       itemCount: _selectedTableImages.length,
                       separatorBuilder: (_, __) => const SizedBox(width: 12),
                       itemBuilder: (context, idx) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            _selectedTableImages[idx],
-                            width: 140,
-                            height: 90,
-                            fit: BoxFit.cover,
+                        return GestureDetector(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: true, // 다이얼로그 바깥 클릭 시 닫힘
+                              builder:
+                                  (_) => GestureDetector(
+                                    behavior:
+                                        HitTestBehavior.opaque, // 바깥쪽 터치 인식 보장
+                                    onTap:
+                                        () =>
+                                            Navigator.of(
+                                              context,
+                                            ).pop(), // 바깥 클릭 시 닫힘
+                                    child: Center(
+                                      child: GestureDetector(
+                                        onTap: () {}, // 사진 클릭 시 닫히지 않게
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          child: Image.asset(
+                                            _selectedTableImages[idx],
+                                            width:
+                                                MediaQuery.of(
+                                                  context,
+                                                ).size.width *
+                                                0.85,
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.asset(
+                              _selectedTableImages[idx],
+                              width: 140,
+                              height: 90,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         );
                       },
@@ -1009,7 +1079,162 @@ class _SeatScreenState extends State<SeatScreen> {
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
           onPressed: () {
-            setState(() => showReservationModal = true);
+            if (_selectedSeats != null && _reservedSeats != null) {
+              // 1. 이번 예약에서 선택한 좌석 인덱스만 추출
+              final List<int> justSelectedIndices = [];
+              for (int i = 0; i < _selectedSeats!.length; i++) {
+                if (_selectedSeats![i]) justSelectedIndices.add(i);
+              }
+              // 2. 해당 인덱스에서 테이블 번호 추출 및 테이블명 생성
+              final Set<int> selectedTableNums = {};
+              for (final idx in justSelectedIndices) {
+                final t = _seatToTable(idx);
+                if (t != null) selectedTableNums.add(t);
+              }
+              final List<int> tableNumsSorted =
+                  selectedTableNums.toList()..sort();
+              final List<String> tableNames =
+                  tableNumsSorted.map((t) {
+                    String prefix;
+                    if (t <= 3)
+                      prefix = 'A';
+                    else if (t <= 6)
+                      prefix = 'B';
+                    else
+                      prefix = 'C';
+                    int num = ((t - 1) % 3) + 1;
+                    return '$prefix-$num';
+                  }).toList();
+              final String tableLabelStr =
+                  tableNames.isNotEmpty ? '테이블 ' + tableNames.join(', ') : '-';
+
+              setState(() {
+                for (int i = 0; i < _selectedSeats!.length; i++) {
+                  if (_selectedSeats![i]) {
+                    _reservedSeats![i] = true;
+                    _selectedSeats![i] = false;
+                  }
+                }
+                _updateSelectedTableImages();
+              });
+              // 예약 정보 텍스트 생성
+              String infoText = '';
+              if (selectedDate != null && selectedTime != null) {
+                infoText += '예약 일시: $selectedDate $selectedTime\n';
+              }
+              infoText += '예약 인원: $selectedCount명';
+
+              // 예약 내역 추가 (홈화면 갱신)
+              globalReservations.insert(
+                0,
+                Reservation(
+                  title: '라 피아짜',
+                  time:
+                      (selectedDate != null && selectedTime != null)
+                          ? '$selectedDate $selectedTime'
+                          : '',
+                  status: '확정',
+                  statusColor: Colors.green,
+                  table: tableLabelStr,
+                  people: selectedCount,
+                ),
+              );
+
+              showDialog(
+                context: context,
+                barrierDismissible: true,
+                builder: (context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 32,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.check_circle,
+                                color: Color(0xFFCFA857),
+                                size: 56,
+                              ),
+                              const SizedBox(height: 18),
+                              const Text(
+                                '예약이 완료되었습니다',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                infoText,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFFCFA857),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop(); // 다이얼로그 닫기
+                                    Navigator.of(
+                                      context,
+                                    ).pushNamedAndRemoveUntil(
+                                      '/home',
+                                      (route) => false,
+                                    ); // 홈으로 이동(항상 새로고침)
+                                  },
+                                  child: const Text(
+                                    '메인으로 가기',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // X 버튼 (오른쪽 상단)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Icon(
+                              Icons.close,
+                              size: 24,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            }
           },
           child: Text(
             buttonText,

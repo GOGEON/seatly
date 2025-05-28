@@ -36,7 +36,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
   }
 
   final List<Map<String, String>> timeSlots = [
-    {'time': '11:30', 'remaining': '8석 남음'},
+    {'time': '11:30', 'remaining': ''},
     {'time': '12:00', 'remaining': '5석 남음'},
     {'time': '12:30', 'remaining': '2석 남음'},
     {'time': '13:00', 'remaining': '10석 남음'},
@@ -333,17 +333,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                             selected
                                                 ? Colors.white
                                                 : Colors.black,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      slot['remaining']!,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color:
-                                            selected
-                                                ? Colors.white
-                                                : Colors.grey,
                                       ),
                                     ),
                                   ],
